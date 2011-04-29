@@ -27,20 +27,20 @@ describe "A Solve360 model" do
     end
   end
   
-  context "XML respresentation" do
+  context "JSON respresentation" do
     before do
       @person = Person.new(:fields => {"Name" => "Stephen"})
       @person.add_related_item({"name" => "Curve21", "id" => "12345"})
       
-      @xml = Crack::XML.parse(@person.to_request)
+      @json = JSON.parse(@person.to_request)
     end
     
     it "should contain related items to add" do
-      @xml["request"]["relateditems"]["add"]["relatedto"]["id"].should == "12345"
+      @json["relateditems"][0]["add"]["relatedto"]["id"].should == "12345"
     end
     
     it "should contain item fields" do
-      @xml["request"]["name"].should == "Stephen"
+      @json["name"].should == "Stephen"
     end
   end
 end
@@ -120,14 +120,14 @@ describe "Creating a record" do
     end
     
     it "should contain ownership in any requests" do
-      @contact.to_request.should match(/\<ownership\>12345\<\/ownership\>/)
+      @contact.to_request.should match(/\"ownership\":\"12345\"/)
     end
   end
   
   context "default ownership" do
     before do
       stub_http_response_with("contacts/create-success.json")
-      @contact = Solve360::Contact.new(:fields => {"firstname" => "Catherine"})
+      @contact = Solve360::Contact.new(:fields => {"First Name" => "Catherine"})
       @contact.save
     end
     
@@ -136,7 +136,7 @@ describe "Creating a record" do
     end
     
     it "should contain ownership in any requests" do
-      @contact.to_request.should match(/\<ownership\>#{Solve360::Config.config.default_ownership}\<\/ownership\>/)
+      @contact.to_request.should match(/\"ownership\":\"#{Solve360::Config.config.default_ownership}\"/)
     end
   end
 end
@@ -228,7 +228,7 @@ end
 describe "CGI Converting values" do
   it "should convert html entities" do
     @contact = Solve360::Contact.new(:fields => {"First Name" => "Steve & Cat", "Last Name" => 29})
-    @contact.to_request.should match(/Steve \&amp\; Cat/)
+    @contact.to_request.should match(/\"Steve & Cat\"/)
     @contact.to_request.should match(/29/)
   end
 end

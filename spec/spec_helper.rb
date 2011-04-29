@@ -11,15 +11,15 @@ def file_fixture(filename)
 end
  
 def stub_http_response_with(filename)
-  # format = filename.split('.').last.intern
-  # data = file_fixture(filename)
-  # 
-  # header = Net::HTTPResponse.new(1.0, 200, 'OK')
-  # header.add_field 'Content-type', 'application/json'
-  # response = RestClient::Response.create(JSON.parse(data), header, nil)
-  # 
-  # http_request = HTTParty::Request.new(Net::HTTP::Get, 'http://localhost', :format => format)
-  # http_request.stub!(:perform).and_return(response)
-  # 
-  # HTTParty::Request.stub!(:new).and_return(http_request)
+  format = filename.split('.').last.intern
+  data = file_fixture(filename)
+  
+  header = Net::HTTPResponse.new(1.0, 200, 'OK')
+  header.add_field 'Content-type', 'application/json'
+  response = RestClient::Response.create(JSON.parse(data), header, nil)
+  
+  http_request = HTTParty::Request.new(Net::HTTP::Get, 'http://localhost', :format => format)
+  http_request.stub!(:perform).and_return(response)
+  
+  HTTParty::Request.stub!(:new).and_return(http_request)
 end

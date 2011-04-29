@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/solve360/event_spec.rb",
     "spec/solve360/item_spec.rb",
-     "spec/spec_helper.rb"
+    "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then

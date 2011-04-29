@@ -48,7 +48,7 @@ module Solve360
       end
       
       if new_record?
-        response = self.class.request(:post, "/#{self.class.resource_name}", self.fields.to_json)
+        response = self.class.request(:post, "/#{self.class.resource_name}", to_request)
         
         if !response["response"]["errors"]
           if response["response"]["item"]
@@ -58,7 +58,7 @@ module Solve360
           end
         end
       else
-        response = self.class.request(:put, "/#{self.class.resource_name}/#{id}", self.fields.to_json)
+        response = self.class.request(:put, "/#{self.class.resource_name}/#{id}", to_request)
       end
       
       if response["response"]["errors"]
@@ -80,12 +80,13 @@ module Solve360
       json = {}
       
       map_human_fields.collect {|key, value| json[key] = value.to_s}
+      json[:ownership] = ownership
+      
       if related_items_to_add.size > 0
-        json[:relateditems] = {}
+        json[:relateditems] = []
         related_items_to_add.each do |related_item|
           json[:relateditems] << {:add => {:relatedto => {:id => related_item["id"]}}}
         end
-        json[:ownership] = ownership
       end
       
       json.to_json
