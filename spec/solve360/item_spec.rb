@@ -127,7 +127,7 @@ describe "Creating a record" do
   context "default ownership" do
     before do
       stub_http_response_with("contacts/create-success.json")
-      @contact = Solve360::Contact.new(:fields => {"First Name" => "Catherine"})
+      @contact = Solve360::Contact.new(:fields => {"firstname" => "Catherine"})
       @contact.save
     end
     

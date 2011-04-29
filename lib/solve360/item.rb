@@ -48,7 +48,7 @@ module Solve360
       end
       
       if new_record?
-        response = self.class.request(:post, "/#{self.class.resource_name}", to_request)
+        response = self.class.request(:post, "/#{self.class.resource_name}", self.fields.to_json)
         
         if !response["response"]["errors"]
           if response["response"]["item"]
@@ -58,7 +58,7 @@ module Solve360
           end
         end
       else
-        response = self.class.request(:put, "/#{self.class.resource_name}/#{id}", to_request)
+        response = self.class.request(:put, "/#{self.class.resource_name}/#{id}", self.fields.to_json)
       end
       
       if response["response"]["errors"]
@@ -77,24 +77,18 @@ module Solve360
     end
     
     def to_request
-      xml = "<request>"
+      json = {}
       
-      xml << map_human_fields.collect {|key, value| "<#{key}>#{CGI.escapeHTML(value.to_s)}</#{key}>"}.join("")
-      
+      map_human_fields.collect {|key, value| json[key] = value.to_s}
       if related_items_to_add.size > 0
-        xml << "<relateditems>"
-        
+        json[:relateditems] = {}
         related_items_to_add.each do |related_item|
-          xml << %Q{<add><relatedto><id>#{related_item["id"]}</id></relatedto></add>}
+          json[:relateditems] << {:add => {:relatedto => {:id => related_item["id"]}}}
         end
-        
-        xml << "</relateditems>"
+        json[:ownership] = ownership
       end
       
-      xml << "<ownership>#{ownership}</ownership>"
-      xml << "</request>"
-      
-      xml
+      json.to_json
     end
     
     def add_related_item(item)
@@ -183,7 +177,7 @@ module Solve360
       # @param [String, nil] optional string to send in request body
       def request(verb, uri, body = "")
         send(verb, HTTParty.normalize_base_uri(Solve360::Config.config.url) + uri,
-          :headers => {"Content-type" => "application/xml", "Accepts" => "application/json"},
+          :headers => {"Content-type" => "application/json", "Accepts" => "application/json"},
           :body => body,
           :basic_auth => {:username => Solve360::Config.config.username, :password => Solve360::Config.config.token})
       end
