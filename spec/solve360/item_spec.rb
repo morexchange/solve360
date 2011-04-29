@@ -132,11 +132,11 @@ describe "Creating a record" do
     end
     
     it "should have assigned a default ownership" do
-      @contact.ownership.should == 536664
+      @contact.ownership.should == Solve360::Config.config.default_ownership
     end
     
     it "should contain ownership in any requests" do
-      @contact.to_request.should match(/\<ownership\>536664\<\/ownership\>/)
+      @contact.to_request.should match(/\<ownership\>#{Solve360::Config.config.default_ownership}\<\/ownership\>/)
     end
   end
 end

@@ -16,7 +16,6 @@ Gem::Specification.new do |s|
     "README.markdown"
   ]
   s.files = [
-    "NOTES",
      "README.markdown",
      "Rakefile",
      "VERSION",
@@ -25,7 +24,6 @@ Gem::Specification.new do |s|
      "lib/solve360/config.rb",
      "lib/solve360/contact.rb",
      "lib/solve360/item.rb",
-     "spec/api_settings.yml",
      "spec/api_settings.yml.sample",
      "spec/fixtures/contacts/create-success.json",
      "spec/fixtures/contacts/find-all.json",

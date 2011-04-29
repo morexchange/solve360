@@ -21,7 +21,9 @@ module Solve360
       "Background" => "background"
       }
     end
-  
-      
+    
+    def self.resource_name
+      self.name.to_s.demodulize.downcase.pluralize
+    end
   end
 end

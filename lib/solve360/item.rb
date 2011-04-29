@@ -51,7 +51,11 @@ module Solve360
         response = self.class.request(:post, "/#{self.class.resource_name}", to_request)
         
         if !response["response"]["errors"]
-          self.id = response["response"]["item"]["id"]
+          if response["response"]["item"]
+            self.id = response["response"]["item"]["id"]
+          elsif response["response"]["data"]
+            self.id = response["response"]["data"]["id"]
+          end
         end
       else
         response = self.class.request(:put, "/#{self.class.resource_name}/#{id}", to_request)
@@ -179,9 +183,9 @@ module Solve360
       # @param [String, nil] optional string to send in request body
       def request(verb, uri, body = "")
         send(verb, HTTParty.normalize_base_uri(Solve360::Config.config.url) + uri,
-            :headers => {"Content-Type" => "application/xml", "Accepts" => "application/json"},
-            :body => body,
-            :basic_auth => {:username => Solve360::Config.config.username, :password => Solve360::Config.config.token})
+          :headers => {"Content-type" => "application/xml", "Accepts" => "application/json"},
+          :body => body,
+          :basic_auth => {:username => Solve360::Config.config.username, :password => Solve360::Config.config.token})
       end
       
       def construct_record_from_singular(response)
