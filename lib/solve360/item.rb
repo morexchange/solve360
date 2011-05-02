@@ -83,9 +83,9 @@ module Solve360
       json[:ownership] = ownership
       
       if related_items_to_add.size > 0
-        json[:relateditems] = []
+        json[:relateditems] = {:add => []}
         related_items_to_add.each do |related_item|
-          json[:relateditems] << {:add => {:relatedto => {:id => related_item["id"]}}}
+          json[:relateditems][:add] << {:relatedto => {:id => related_item["id"]}}
         end
       end
       
