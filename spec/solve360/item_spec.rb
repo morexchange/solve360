@@ -36,7 +36,7 @@ describe "A Solve360 model" do
     end
     
     it "should contain related items to add" do
-      @json["relateditems"]["add"][0]["relatedto"]["id"].should == "12345"
+      @json["relateditems"]["add"][0]["id"].should == "12345"
     end
     
     it "should contain item fields" do
