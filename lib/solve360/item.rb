@@ -5,13 +5,14 @@ module Solve360
       model.extend ClassMethods
       model.send(:include, HTTParty)
       model.instance_variable_set(:@field_mapping, {})
+      model.instance_variable_set(:@category_mapping, {})
     end
     
     # Base Item fields
     attr_accessor :id, :name, :typeid, :created, :updated, :viewed, :ownership, :flagged
     
     # Base item collections
-    attr_accessor :fields, :related_items, :related_items_to_add
+    attr_accessor :fields, :related_items, :related_items_to_add, :categories, :categories_to_add
     
     def initialize(attributes = {})
       attributes.symbolize_keys!
@@ -19,6 +20,8 @@ module Solve360
       self.fields = {}
       self.related_items = []
       self.related_items_to_add = []
+      self.categories = []
+      self.categories_to_add = []
       
       [:fields, :related_items].each do |collection|
         self.send("#{collection}=", attributes[collection]) if attributes[collection]
@@ -66,6 +69,7 @@ module Solve360
         raise Solve360::SaveFailure, message
       else
         related_items.concat(related_items_to_add)
+        categories.concat(categories_to_add)
 
         response
       end
@@ -82,11 +86,15 @@ module Solve360
       map_human_fields.collect {|key, value| json[key] = value.to_s}
       json[:ownership] = ownership
       
-      if related_items_to_add.size > 0
-        json[:relateditems] = {}
-        json[:relateditems][:add] = []
-        related_items_to_add.each do |related_item|
-          json[:relateditems][:add] << related_item
+      [:related_items, :categories].each do |list_name|
+        list = self.instance_variable_get('@' + list_name.to_s + '_to_add')
+        json_field = list_name.to_s.gsub('_', '')
+        if list.size > 0
+          json[json_field] = {}
+          json[json_field][:add] = []
+          list.each do |list_item|
+            json[json_field][:add] << list_item
+          end
         end
       end
       
@@ -95,6 +103,10 @@ module Solve360
     
     def add_related_item(item)
       related_items_to_add << item
+    end
+    
+    def add_category(category)
+      categories_to_add << self.class.map_category(category)
     end
     
     module ClassMethods
@@ -138,6 +150,13 @@ module Solve360
         mapped_fields
       end
       
+      def map_category(category)
+        category_value = category
+        category_value = category_mapping[category] if !category_mapping[category].blank?
+        
+        category_value
+      end
+      
       # Create a record in the API
       #
       # @param [Hash] field => value as configured in Item::fields
@@ -162,13 +181,13 @@ module Solve360
       # 
       # @param [Integer] id of the record on the CRM
       def find_one(id)
-        response = request(:get, "/#{resource_name}/#{id}")
+        response = request(:get, "/#{self.resource_name}/#{id}")
         construct_record_from_singular(response)
       end
       
       # Find all records
       def find_all
-        response = request(:get, "/#{resource_name}/", "<request><layout>1</layout></request>")
+        response = request(:get, "/#{self.resource_name}/", "<request><layout>1</layout></request>")
         construct_record_from_collection(response)
       end
       
@@ -202,6 +221,16 @@ module Solve360
           end
         end
         
+        if response["response"]["categories"]
+          categories = response["response"]["categories"]["category"]
+          
+          if categories.kind_of?(Array)
+            record.categories.concat(categories)
+          else
+            record.categories = [categories]
+          end
+        end
+        
         record
       end
       
@@ -227,8 +256,16 @@ module Solve360
         @field_mapping.merge! yield
       end
       
+      def map_categories(&block)
+        @category_mapping.merge! yield
+      end
+        
       def field_mapping
         @field_mapping
+      end
+      
+      def category_mapping
+        @category_mapping
       end
     end
   end

@@ -6,6 +6,10 @@ class Person
   map_fields do
     { "Job Title" => "job_title", "Name" => "name" }
   end
+  
+  map_categories do
+    { "Basic Category" => "basecat" }
+  end
 end
 
 describe "A Solve360 model" do
@@ -22,6 +26,7 @@ describe "A Solve360 model" do
         end
       end
       
+      Car.field_mapping.keys.include?("Doors").should be_true
       Car.field_mapping.keys.include?("Job Title").should be_false
       Person.field_mapping.keys.include?("Doors").should be_false
     end
@@ -31,6 +36,7 @@ describe "A Solve360 model" do
     before do
       @person = Person.new(:fields => {"Name" => "Stephen"})
       @person.add_related_item({"name" => "Curve21", "id" => "12345"})
+      @person.add_category("cat12345")
       
       @json = JSON.parse(@person.to_request)
     end
@@ -39,9 +45,14 @@ describe "A Solve360 model" do
       @json["relateditems"]["add"][0]["id"].should == "12345"
     end
     
+    it "should contain categories to add" do
+      @json["categories"]["add"][0].should == "cat12345"
+    end
+    
     it "should contain item fields" do
       @json["name"].should == "Stephen"
     end
+    
   end
 end
 
@@ -79,6 +90,34 @@ describe "Field mapping" do
     fields = {:custom_description => "A description"}
     
     Person.map_api_fields(fields)["Description"].should == "A description"
+  end
+end
+
+describe "Category mapping" do
+  before do
+    Person.map_categories do
+      {
+        "First Category" => "cat1",
+        "Second Category" => "cat2",
+        "And one more just for fun" => "cat3"
+      }
+    end
+    
+    @person = Person.new
+  end
+  
+  it "should set base map" do
+    Person.category_mapping["Basic Category"].should == "basecat"
+  end
+  
+  it "should set custom map" do
+    Person.category_mapping["First Category"].should == "cat1"
+  end
+  
+  it "should map human fields to correct category value" do
+    fields = {"Description" => "A description"}
+    
+    Person.map_category("And one more just for fun").should == "cat3"
   end
 end
 
