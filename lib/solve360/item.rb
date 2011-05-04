@@ -12,18 +12,19 @@ module Solve360
     attr_accessor :id, :name, :typeid, :created, :updated, :viewed, :ownership, :flagged
     
     # Base item collections
-    attr_accessor :fields, :related_items, :related_items_to_add, :categories, :categories_to_add
+    attr_accessor :fields, :data, :related_items, :related_items_to_add, :categories, :categories_to_add
     
     def initialize(attributes = {})
       attributes.symbolize_keys!
       
       self.fields = {}
+      self.data = {}
       self.related_items = []
       self.related_items_to_add = []
       self.categories = []
       self.categories_to_add = []
       
-      [:fields, :related_items].each do |collection|
+      [:fields, :data, :categories, :related_items].each do |collection|
         self.send("#{collection}=", attributes[collection]) if attributes[collection]
         attributes.delete collection
       end
@@ -36,6 +37,10 @@ module Solve360
     # @see Base::map_human_attributes
     def map_human_fields
       self.class.map_human_fields(self.fields)
+    end
+    
+    def map_data_fields
+      self.class.map_human_fields(self.data)
     end
     
     # Save the attributes for the current record to the CRM
@@ -84,6 +89,10 @@ module Solve360
       json = {}
       
       map_human_fields.collect {|key, value| json[key] = value.to_s}
+      
+      json[:data] = {}
+      map_data_fields.collect {|key, value| json[:data][key] = value.to_s}
+      
       json[:ownership] = ownership
       
       [:related_items, :categories].each do |list_name|
@@ -181,13 +190,13 @@ module Solve360
       # 
       # @param [Integer] id of the record on the CRM
       def find_one(id)
-        response = request(:get, "/#{self.resource_name}/#{id}")
+        response = request(:get, "/#{resource_name}/#{id}")
         construct_record_from_singular(response)
       end
       
       # Find all records
       def find_all
-        response = request(:get, "/#{self.resource_name}/", "<request><layout>1</layout></request>")
+        response = request(:get, "/#{resource_name}/", "<request><layout>1</layout></request>")
         construct_record_from_collection(response)
       end
       

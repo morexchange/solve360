@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
      "lib/solve360/event.rb",
      "lib/solve360/item.rb",
      "lib/solve360/project_blog.rb",
+     "lib/solve360/activity_template.rb",
      "spec/api_settings.yml.sample",
      "spec/fixtures/contacts/create-success.json",
      "spec/fixtures/contacts/find-all.json",
@@ -46,6 +47,8 @@ Gem::Specification.new do |s|
   s.summary = %q{Libary for working with the Solve360 CRM API}
   s.test_files = [
     "spec/solve360/event_spec.rb",
+    "spec/solve360/project_blog_spec.rb",
+    "spec/solve360/activity_template_spec.rb"
     "spec/solve360/item_spec.rb",
     "spec/spec_helper.rb"
   ]

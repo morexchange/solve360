@@ -115,8 +115,6 @@ describe "Category mapping" do
   end
   
   it "should map human fields to correct category value" do
-    fields = {"Description" => "A description"}
-    
     Person.map_category("And one more just for fun").should == "cat3"
   end
 end
@@ -261,14 +259,6 @@ describe "Handling errors" do
     lambda {
       @contact.save
     }.should raise_error(Solve360::SaveFailure)
-  end
-end
-
-describe "CGI Converting values" do
-  it "should convert html entities" do
-    @contact = Solve360::Contact.new(:fields => {"First Name" => "Steve & Cat", "Last Name" => 29})
-    @contact.to_request.should match(/\"Steve & Cat\"/)
-    @contact.to_request.should match(/29/)
   end
 end
 
