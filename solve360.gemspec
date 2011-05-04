@@ -48,7 +48,7 @@ Gem::Specification.new do |s|
   s.test_files = [
     "spec/solve360/event_spec.rb",
     "spec/solve360/project_blog_spec.rb",
-    "spec/solve360/activity_template_spec.rb"
+    "spec/solve360/activity_template_spec.rb",
     "spec/solve360/item_spec.rb",
     "spec/spec_helper.rb"
   ]
