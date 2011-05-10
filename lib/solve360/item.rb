@@ -97,13 +97,10 @@ module Solve360
       
       [:related_items, :categories].each do |list_name|
         list = self.instance_variable_get('@' + list_name.to_s + '_to_add')
-        json_field = list_name.to_s.gsub('_', '')
         if list.size > 0
+          json_field = list_name.to_s.gsub('_', '')
           json[json_field] = {}
-          json[json_field][:add] = []
-          list.each do |list_item|
-            json[json_field][:add] << list_item
-          end
+          json[json_field][:add] = list
         end
       end
       

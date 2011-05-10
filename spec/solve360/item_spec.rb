@@ -36,6 +36,7 @@ describe "A Solve360 model" do
     before do
       @person = Person.new(:fields => {"Name" => "Stephen"})
       @person.add_related_item({"name" => "Curve21", "id" => "12345"})
+      @person.add_related_item({"name" => "Example", "id" => "654321"})
       @person.add_category("cat12345")
       
       @json = JSON.parse(@person.to_request)
@@ -43,6 +44,7 @@ describe "A Solve360 model" do
     
     it "should contain related items to add" do
       @json["relateditems"]["add"][0]["id"].should == "12345"
+      @json["relateditems"]["add"][1]["name"].should == "Example"
     end
     
     it "should contain categories to add" do
