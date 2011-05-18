@@ -188,12 +188,14 @@ module Solve360
       # @param [Integer] id of the record on the CRM
       def find_one(id)
         response = request(:get, "/#{resource_name}/#{id}")
+        raise_find_errors(response)
         construct_record_from_singular(response)
       end
       
       # Find all records
       def find_all
         response = request(:get, "/#{resource_name}/", "<request><layout>1</layout></request>")
+        raise_find_errors(response)
         construct_record_from_collection(response)
       end
       
@@ -209,8 +211,24 @@ module Solve360
           :basic_auth => {:username => Solve360::Config.config.username, :password => Solve360::Config.config.token})
       end
       
+      def raise_find_errors(response)
+        if response["response"]["errors"]
+          message = response["response"]["errors"].map {|k,v| "#{k}: #{v}" }.join("\n")
+          raise Solve360::FindFailure, message
+        end
+      end
+      
       def construct_record_from_singular(response)
-        item = response["response"]["item"]
+        item = nil
+        
+        if response["response"]["item"]
+          item = response["response"]["item"]
+        elsif response["response"]["data"]
+          item = response["response"]["data"]
+        end
+        
+        return nil if item.nil?
+         
         item.symbolize_keys!
         
         item[:fields] = map_api_fields(item[:fields])
